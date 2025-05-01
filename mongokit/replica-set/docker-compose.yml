@@ -1,0 +1,59 @@
+services:
+  # 主
+  mongo-master:
+    image: mongo
+    container_name: mongo-master
+    ports:
+      27017:27017
+    volumes:
+      - ./configdb/:/data/configdb
+      - ./data/master-db/:/data/db
+    command: [
+      "mongo", 
+      "--replSet"
+      " 'mongo-rs' ",
+      "--bind_ip_all",
+      "-f",
+      "/data/configdb/mongodb.conf"
+    ]
+
+  # 从
+  mongo-slave:
+    image: mongo
+    container_name: mongo-master
+    ports:
+      27017:27017
+    volumes:
+      - ./configdb/:/data/configdb
+      - ./data/slave-db/:/data/db
+    command: [
+      "mongo", 
+      "--replSet"
+      " 'mongo-rs' ",
+      "--bind_ip_all",
+      "-f",
+      "/data/configdb/mongodb.conf"
+    ]
+
+  # 仲裁节点
+  # 仅有一个主一从时，可以配置仲裁节点
+  # 只投票，不持有数据
+  # 也可用于想让节点总数为单数时
+  mongo-arditer:
+    image: mongo
+    container_name: mongo-master
+    ports:
+      27017:27017
+    volumes:
+      - ./configdb/:/data/configdb
+      - ./data/slave-db/:/data/db
+    command: [
+      "mongo", 
+      "--replSet"
+      " 'mongo-rs' ",
+      "--bind_ip_all",
+      "-f",
+      "/data/configdb/mongodb.conf"
+    ]
+
+
