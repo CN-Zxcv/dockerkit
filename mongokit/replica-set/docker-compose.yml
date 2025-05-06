@@ -4,56 +4,43 @@ services:
     image: mongo
     container_name: mongo-master
     ports:
-      27017:27017
+      - 27017:27017
     volumes:
-      - ./configdb/:/data/configdb
+      - ./etc/:/data/etc
       - ./data/master-db/:/data/db
-    command: [
-      "mongo", 
-      "--replSet"
-      " 'mongo-rs' ",
-      "--bind_ip_all",
-      "-f",
-      "/data/configdb/mongodb.conf"
-    ]
+      - ./master/init.d/init.sh:/docker-entrypoint-initdb.d/init.sh
+    healthcheck:
+      test: "echo 'db.runCommand({ ping: 1 })' | mongo --quiet"
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      # start_period: 30s
+    command: --config /data/etc/mongodb.conf
+    # command: mongod --dbpath /data/db --replSet mongo-rs
 
   # 从
   mongo-slave:
     image: mongo
-    container_name: mongo-master
+    container_name: mongo-slave
     ports:
-      27017:27017
+      - 27018:27017
     volumes:
-      - ./configdb/:/data/configdb
+      - ./etc/:/data/etc
       - ./data/slave-db/:/data/db
-    command: [
-      "mongo", 
-      "--replSet"
-      " 'mongo-rs' ",
-      "--bind_ip_all",
-      "-f",
-      "/data/configdb/mongodb.conf"
-    ]
+    command: --config /data/etc/mongodb.conf
 
   # 仲裁节点
   # 仅有一个主一从时，可以配置仲裁节点
   # 只投票，不持有数据
   # 也可用于想让节点总数为单数时
-  mongo-arditer:
+  mongo-arbiter:
     image: mongo
-    container_name: mongo-master
+    container_name: mongo-arbiter
     ports:
-      27017:27017
+      - 27019:27017
     volumes:
-      - ./configdb/:/data/configdb
+      - ./etc/:/data/etc
       - ./data/slave-db/:/data/db
-    command: [
-      "mongo", 
-      "--replSet"
-      " 'mongo-rs' ",
-      "--bind_ip_all",
-      "-f",
-      "/data/configdb/mongodb.conf"
-    ]
+    command: --config /data/etc/mongodb.conf
 
 
