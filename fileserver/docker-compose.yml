@@ -1,0 +1,26 @@
+services:
+
+  # 不支持svg交互
+  # filebrowser:
+  #   image: hurlenko/filebrowser
+  #   user: "${UID}:${GID}"
+  #   ports:
+  #     - 8080:8080
+  #   volumes:
+  #     - ./data:/data
+  #     - ./config:/config
+  #   environment:
+  #     FB_BASEURL: /filebrowser
+  #     FB_NOAUTH: 1
+
+  fileserver:
+    image: nginx
+    container_name: fileserver
+    ports:
+      - 8080:80
+    volumes:
+      - ./config/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./data:/data
+
+
+
