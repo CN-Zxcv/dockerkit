@@ -1,0 +1,11 @@
+services:
+  # 本机 docker 管理
+  portainer:
+    image: portainer/portainer-ce
+    container_name: portainer
+    ports:
+      - 9000:9000
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /etc/localtime:/etc/localtime
+    # command: '--no-auth -H unix:///var/run/docker.sock'

@@ -1,0 +1,97 @@
+services:
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./data:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=user
+      - MONGO_INITDB_ROOT_PASSWORD=pass
+  
+  # 目前最可用, 但是没有用户管理功能
+  compass-web:
+    image: haohanyang/compass-web
+    container_name: compass-web
+    depends_on:
+      - mongo
+    ports:
+      - "27000:8080"
+
+  # 图标都加载不到了, 目前缺少维护
+  mongod:
+    image: ghcr.io/renzholy/mongood:sha-db41a3647cc1058f441043aa1541298943793ad5
+    container_name: mongod
+    depends_on:
+      - mongo
+    ports:
+      - "27000:3000"
+
+  # 官方的，功能齐全，但是界面难用
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express
+    depends_on:
+      - mongo
+    ports:
+      - "27000:8081"
+    environment:
+      ME_CONFIG_MONGODB_URL: "mongodb://user:pass@172.17.0.1:27017"
+      ME_CONFIG_BASICAUTH: 'true'
+      ME_CONFIG_BASICAUTH_ENABLED: 'true'
+      ME_CONFIG_BASICAUTH_USERNAME: 'admin'
+      ME_CONFIG_BASICAUTH_PASSWORD: 'admin'
+  
+  # 功能OK，但是 document 界面难用
+  # 作者看起来没有维护了，但是可以正常使用, 考虑自己维护一个
+  # https://github.com/arunbandari/mongo-gui
+  mongo-gui:
+    image: ugleiton/mongo-gui
+    container_name: mongo-gui
+    depends_on:
+      - mongo
+    ports:
+      - "27000:4321"
+    environment:
+      MONGO_URL: "mongodb://user:pass@172.17.0.1:27017"
+  
+  # 已经废弃了，不能登录新的MongoDB
+  rockmongo:
+    # image: 'ykocaman/rockmongo'
+    image: 'rockmongo:dev'
+    container_name: rockmongo
+    depends_on:
+      - mongo
+    ports:
+      - "27000:80"
+    environment:
+      MONGO_SERVER: 172.17.0.1
+      MONGO_PORT: 27017
+      MONGO_AUTH: true
+      MONGO_USERNAME: user
+      MONGO_PASSWORD: pass
+      ROCKMONGO_AUTH: true
+      ROCKMONGO_USER: admin
+      ROCKMONGO_PASSWORD: admin
+  
+  # 登录有问题, 还未解决
+  easymongo:
+    image: easymongo
+    container_name: easymongo
+    depends_on:
+      - mongo
+    ports:
+      - "27000:80"
+    environment:
+      MONGO_SERVER: 172.17.0.1
+      MONGO_PORT: 27017
+      MONGO_AUTH: false
+      MONGO_USERNAME: user
+      MONGO_PASSWORD: pass
+      ROCKMONGO_AUTH: true
+      ROCKMONGO_USER: admin
+      ROCKMONGO_PASSWORD: admin
+
+  
+  
