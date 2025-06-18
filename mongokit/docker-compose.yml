@@ -9,7 +9,19 @@ services:
     environment:
       - MONGO_INITDB_ROOT_USERNAME=user
       - MONGO_INITDB_ROOT_PASSWORD=pass
-  
+
+  # 自己维护的 compass-web 版本
+  # 增加了用户认证
+  mongo-compass:
+    image: hexagon66/mongo-compass
+    container_name: mongo-compass
+    depends_on:
+      - mongo
+    ports:
+      - "27000:8080"
+    volumes:
+      - ./mongo-compass/env:/app/.env
+
   # 目前最可用, 但是没有用户管理功能
   compass-web:
     image: haohanyang/compass-web
